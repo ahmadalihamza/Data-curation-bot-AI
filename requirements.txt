@@ -1,0 +1,16 @@
+fastapi
+openai
+uvicorn[standard]
+streamlit
+pydantic
+pydantic-settings
+python-dotenv
+httpx
+aiofiles
+beautifulsoup4
+pymupdf
+python-docx
+pandas
+openpyxl
+python-multipart
+setuptools
