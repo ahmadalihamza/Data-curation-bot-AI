@@ -151,11 +151,16 @@ def main():
         "Select Task Types",
         available_tasks,
         default=["qa_generation"],
+        key="sidebar_task_select"
     )
 
     st.sidebar.markdown("### Processing Options")
 
-    quality_filter = st.sidebar.checkbox("Enable Quality Filter", value=True)
+    quality_filter = st.sidebar.checkbox(
+        "Enable Quality Filter",
+        value=True,
+        key="sidebar_quality_filter"
+    )
 
     chunk_size = st.sidebar.slider(
         "Chunk Size",
@@ -163,6 +168,7 @@ def main():
         2000,
         settings.CHUNK_SIZE,
         step=100,
+        key="sidebar_chunk_size"
     )
 
     chunk_overlap = st.sidebar.slider(
@@ -171,13 +177,13 @@ def main():
         500,
         settings.CHUNK_OVERLAP,
         step=50,
+        key="sidebar_chunk_overlap"
     )
 
     st.title("📚 Training Data Curation Bot")
     st.markdown("Generate high-quality training data from your documents using AI")
 
     tab1, tab2, tab3 = st.tabs(["📤 Upload & Process", "📊 Results", "💾 Export"])
-
 
     # ---------------- TAB 1 ----------------
     with tab1:
@@ -191,15 +197,15 @@ def main():
                 "Choose files",
                 type=["txt", "md", "pdf", "docx", "json", "xml", "csv"],
                 accept_multiple_files=True,
+                key="upload_files"
             )
 
         with col2:
-            url_input = st.text_area("Enter URLs (one per line)")
+            url_input = st.text_area("Enter URLs (one per line)", key="url_input_area")
 
         st.divider()
 
-        if st.button("🚀 Process Documents", use_container_width=True):
-
+        if st.button("🚀 Process Documents", use_container_width=True, key="process_docs_btn"):
             process_documents_async(
                 uploaded_files,
                 url_input,
@@ -208,7 +214,6 @@ def main():
                 chunk_size,
                 chunk_overlap,
             )
-
 
     # ---------------- TAB 2 ----------------
     with tab2:
@@ -222,6 +227,7 @@ def main():
             selected_dataset = st.selectbox(
                 "Select Dataset",
                 options=[d["id"] for d in datasets],
+                key="results_dataset_selectbox"
             )
 
             dataset = st.session_state.datasets.get(selected_dataset)
@@ -241,7 +247,6 @@ def main():
         else:
             st.info("No datasets yet.")
 
-
     # ---------------- TAB 3 ----------------
     with tab3:
 
@@ -257,25 +262,29 @@ def main():
                 export_dataset_id = st.selectbox(
                     "Select Dataset",
                     options=[d["id"] for d in datasets],
+                    key="export_dataset_selectbox"
                 )
 
             with col2:
                 export_format = st.selectbox(
                     "Export Format",
                     ["jsonl", "json", "csv", "zip"],
+                    key="export_format_selectbox"
                 )
 
             output_filename = st.text_input(
                 "Output Filename",
                 value=f"training_data.{export_format}",
+                key="export_output_filename"
             )
 
             output_dir = st.text_input(
                 "Output Directory",
                 value="/tmp",
+                key="export_output_dir"
             )
 
-            if st.button("💾 Export Dataset", use_container_width=True):
+            if st.button("💾 Export Dataset", use_container_width=True, key="export_btn"):
 
                 export_dataset_async(
                     export_dataset_id,
@@ -293,6 +302,7 @@ def main():
                             data=f,
                             file_name=output_filename,
                             mime="application/octet-stream",
+                            key="download_file_btn"
                         )
                 else:
                     st.error("Export failed: file not found")
