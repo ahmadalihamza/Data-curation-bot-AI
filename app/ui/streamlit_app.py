@@ -345,8 +345,8 @@ def main():
                 file_name=output_filename,
                 mime="application/octet-stream",
             )
-        else:
-            st.info("No datasets to export. Process some documents first.")
+    else:
+        st.info("No datasets to export. Process some documents first.")
 
     # Status section in sidebar
     st.sidebar.markdown("---")
