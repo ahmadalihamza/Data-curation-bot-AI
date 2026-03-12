@@ -326,7 +326,7 @@ def main():
 
             output_dir = st.text_input(
                 "Output Directory",
-                value=os.path.expanduser("~/Downloads"),
+                value="/tmp",
             )
 
             if st.button("💾 Export Dataset", type="primary", use_container_width=True):
