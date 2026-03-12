@@ -331,8 +331,8 @@ def main():
 
     if st.button("💾 Export Dataset", type="primary", use_container_width=True):
 
-    export_dataset_async(
-        export_dataset_id, output_filename, export_format, output_dir
+         export_dataset_async(
+            export_dataset_id, output_filename, export_format, output_dir
     )
 
     file_path = os.path.join(output_dir, output_filename)
