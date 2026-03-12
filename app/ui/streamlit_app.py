@@ -1,4 +1,3 @@
-```python
 """Streamlit UI for the Training Data Curation Bot."""
 
 import sys
@@ -288,16 +287,13 @@ def main():
                 file_path = os.path.join(output_dir, output_filename)
 
                 if os.path.exists(file_path):
-
                     with open(file_path, "rb") as f:
-
                         st.download_button(
                             "⬇ Download File",
                             data=f,
                             file_name=output_filename,
                             mime="application/octet-stream",
                         )
-
                 else:
                     st.error("Export failed: file not found")
 
@@ -321,4 +317,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
