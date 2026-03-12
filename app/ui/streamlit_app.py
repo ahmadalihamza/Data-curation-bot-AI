@@ -296,63 +296,63 @@ def main():
 
     # Tab 3: Export
     # Tab 3: Export
-with tab3:
-    st.header("Export Dataset")
+    with tab3:
+       st.header("Export Dataset")
 
-    datasets = list(st.session_state.datasets.values())
+       datasets = list(st.session_state.datasets.values())
 
-    if datasets:
+       if datasets:
         # Export settings
-        col1, col2 = st.columns(2)
+           col1, col2 = st.columns(2)
 
-        with col1:
-            export_dataset_id = st.selectbox(
-                "Select Dataset to Export",
-                options=[d["id"] for d in datasets],
-                format_func=lambda x: f"Dataset {x[:8]}...",
-            )
+           with col1:
+               export_dataset_id = st.selectbox(
+                   "Select Dataset to Export",
+                    options=[d["id"] for d in datasets],
+                    format_func=lambda x: f"Dataset {x[:8]}...",
+               )
 
-        with col2:
-            export_format = st.selectbox(
-                "Export Format",
-                options=["jsonl", "json", "csv", "zip"],
-                format_func=lambda x: x.upper(),
-            )
+            with col2:
+               export_format = st.selectbox(
+                  "Export Format",
+                   options=["jsonl", "json", "csv", "zip"],
+                   format_func=lambda x: x.upper(),
+               )
 
         # Export filename and directory
-        output_filename = st.text_input(
-            "Output Filename",
-            value=f"training_data.{export_format}",
-        )
-
-        output_dir = st.text_input(
-            "Output Directory",
-            value="/tmp",
-        )
-
-        # ✅ Export button must be INSIDE the if datasets block
-        if st.button("💾 Export Dataset", type="primary", use_container_width=True):
-            # Run export
-            export_dataset_async(
-                export_dataset_id, output_filename, export_format, output_dir
+            output_filename = st.text_input(
+                "Output Filename",
+                value=f"training_data.{export_format}",
             )
 
-            # File download
-            import os
-            file_path = os.path.join(output_dir, output_filename)
+            output_dir = st.text_input(
+                "Output Directory",
+                value="/tmp",
+            )
 
-            if os.path.exists(file_path):
-                with open(file_path, "rb") as f:
-                    st.download_button(
-                        label="⬇ Download File",
-                        data=f,
-                        file_name=output_filename,
-                        mime="application/octet-stream",
-                    )
-            else:
-                st.error("Export failed: file not found")
-    else:
-        st.info("No datasets to export. Process some documents first.")
+        # ✅ Export button must be INSIDE the if datasets block
+            if st.button("💾 Export Dataset", type="primary", use_container_width=True):
+            # Run export
+                export_dataset_async(
+                    export_dataset_id, output_filename, export_format, output_dir
+               )
+
+            # File download
+            
+               file_path = os.path.join(output_dir, output_filename)
+
+               if os.path.exists(file_path):
+                   with open(file_path, "rb") as f:
+                       st.download_button(
+                           label="⬇ Download File",
+                           data=f,
+                           file_name=output_filename,
+                           mime="application/octet-stream",
+                       )
+                else:
+                    st.error("Export failed: file not found")
+        else:
+            st.info("No datasets to export. Process some documents first.")
     # Status section in sidebar
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📈 Status")
