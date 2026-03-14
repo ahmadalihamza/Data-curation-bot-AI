@@ -23,6 +23,60 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ---------------- CUSTOM CSS ----------------
+st.markdown("""
+<style>
+
+/* Main background */
+.main {
+    background-color: #0e1117;
+}
+
+/* Title */
+h1 {
+    font-weight: 700 !important;
+}
+
+/* Cards */
+.card {
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.stButton > button {
+    border-radius: 10px;
+    height: 45px;
+    font-weight: 600;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #111827;
+}
+
+/* Tabs */
+button[data-baseweb="tab"] {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Metrics */
+[data-testid="stMetricValue"] {
+    font-size: 28px;
+}
+
+/* File uploader */
+section[data-testid="stFileUploader"] {
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 
 # ---------------- SESSION STATE ----------------
 def init_session_state():
@@ -192,22 +246,22 @@ def main():
         key="chunk_overlap"
     )
 
-    # Main UI
+    # Header
     st.title("📚 Training Data Curation Bot")
-    st.markdown("Generate high-quality training data from your documents using AI")
+    st.caption("Generate high-quality AI training datasets from documents")
 
     tab1, tab2, tab3 = st.tabs(["📤 Upload & Process", "📊 Results", "💾 Export"])
 
     # ---------------- TAB 1 ----------------
     with tab1:
 
-        st.header("Upload Documents")
+        st.markdown('<div class="card">', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
 
         with col1:
             uploaded_files = st.file_uploader(
-                "Choose files",
+                "Upload Files",
                 type=["txt","md","pdf","docx","json","xml","csv"],
                 accept_multiple_files=True,
                 key="file_upload"
@@ -233,6 +287,8 @@ def main():
                 chunk_size,
                 chunk_overlap,
             )
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------------- TAB 2 ----------------
     with tab2:
