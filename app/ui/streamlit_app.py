@@ -57,12 +57,12 @@ def process_documents_async(uploaded_files, url_input, selected_tasks, quality_f
     temp_dir = tempfile.mkdtemp()
 
     for uploaded_file in uploaded_files:
-        path = os.path.join(temp_dir, uploaded_file.name)
+        file_path = os.path.join(temp_dir, uploaded_file.name)
 
-        with open(path, "wb") as f:
+        with open(file_path, "wb") as f:
             f.write(uploaded_file.getvalue())
 
-        sources.append(path)
+        sources.append(file_path)
 
     if url_input:
         urls = [u.strip() for u in url_input.split("\n") if u.strip()]
@@ -70,7 +70,8 @@ def process_documents_async(uploaded_files, url_input, selected_tasks, quality_f
 
     bot = st.session_state.bot
 
-    async def run():
+    async def run_processing():
+
         with st.spinner("Loading documents..."):
             documents = await bot.load_documents(sources)
 
@@ -85,7 +86,7 @@ def process_documents_async(uploaded_files, url_input, selected_tasks, quality_f
 
         return result
 
-    result = asyncio.run(run())
+    result = asyncio.run(run_processing())
 
     st.session_state.processing = False
 
@@ -136,11 +137,11 @@ def export_dataset_async(export_dataset_id, output_filename, export_format, outp
 
     result = st.session_state.bot.exporter.export(examples, output_path, export_format)
 
-    output_file = result.get("output_path")
+    output_file_path = result.get("output_path")
 
-    if output_file and os.path.exists(output_file):
-        st.success(f"Exported {result.get('example_count')} examples to: {output_file}")
-        return output_file
+    if output_file_path and os.path.exists(output_file_path):
+        st.success(f"Exported {result.get('example_count')} examples to: {output_file_path}")
+        return output_file_path
 
     st.error("Export failed: file not found")
     return None
@@ -151,7 +152,7 @@ def main():
 
     init_session_state()
 
-    # -------- Sidebar --------
+    # Sidebar
     st.sidebar.title("⚙️ Configuration")
     st.sidebar.markdown("---")
 
@@ -162,11 +163,16 @@ def main():
         "Select Task Types",
         available_tasks,
         default=["qa_generation"],
+        key="task_select"
     )
 
     st.sidebar.markdown("### Processing Options")
 
-    quality_filter = st.sidebar.checkbox("Enable Quality Filter", value=True)
+    quality_filter = st.sidebar.checkbox(
+        "Enable Quality Filter",
+        value=True,
+        key="quality_filter"
+    )
 
     chunk_size = st.sidebar.slider(
         "Chunk Size",
@@ -174,6 +180,7 @@ def main():
         2000,
         settings.CHUNK_SIZE,
         step=100,
+        key="chunk_size"
     )
 
     chunk_overlap = st.sidebar.slider(
@@ -182,15 +189,16 @@ def main():
         500,
         settings.CHUNK_OVERLAP,
         step=50,
+        key="chunk_overlap"
     )
 
-    # -------- Main UI --------
+    # Main UI
     st.title("📚 Training Data Curation Bot")
     st.markdown("Generate high-quality training data from your documents using AI")
 
     tab1, tab2, tab3 = st.tabs(["📤 Upload & Process", "📊 Results", "💾 Export"])
 
-    # ---------- TAB 1 ----------
+    # ---------------- TAB 1 ----------------
     with tab1:
 
         st.header("Upload Documents")
@@ -200,16 +208,20 @@ def main():
         with col1:
             uploaded_files = st.file_uploader(
                 "Choose files",
-                type=["txt", "md", "pdf", "docx", "json", "xml", "csv"],
+                type=["txt","md","pdf","docx","json","xml","csv"],
                 accept_multiple_files=True,
+                key="file_upload"
             )
 
         with col2:
-            url_input = st.text_area("Enter URLs (one per line)")
+            url_input = st.text_area(
+                "Enter URLs (one per line)",
+                key="url_input"
+            )
 
         st.divider()
 
-        if st.button("🚀 Process Documents", use_container_width=True):
+        if st.button("🚀 Process Documents", use_container_width=True, key="process_button"):
 
             st.session_state.processing = True
 
@@ -222,7 +234,7 @@ def main():
                 chunk_overlap,
             )
 
-    # ---------- TAB 2 ----------
+    # ---------------- TAB 2 ----------------
     with tab2:
 
         st.header("Results")
@@ -234,6 +246,7 @@ def main():
             selected_dataset = st.selectbox(
                 "Select Dataset",
                 options=[d["id"] for d in datasets],
+                key="results_dataset_selectbox"
             )
 
             dataset = st.session_state.datasets.get(selected_dataset)
@@ -255,7 +268,7 @@ def main():
         else:
             st.info("No datasets yet.")
 
-    # ---------- TAB 3 ----------
+    # ---------------- TAB 3 ----------------
     with tab3:
 
         st.header("Export Dataset")
@@ -271,26 +284,30 @@ def main():
                 export_dataset_id = st.selectbox(
                     "Select Dataset",
                     options=[d["id"] for d in datasets],
+                    key="export_dataset_selectbox"
                 )
 
             with col2:
 
                 export_format = st.selectbox(
                     "Export Format",
-                    ["jsonl", "json", "csv", "zip"],
+                    ["jsonl","json","csv","zip"],
+                    key="export_format_selectbox"
                 )
 
             output_filename = st.text_input(
                 "Output Filename",
                 value=f"training_data.{export_format}",
+                key="export_filename"
             )
 
             output_dir = st.text_input(
                 "Output Directory",
                 value="/tmp",
+                key="export_directory"
             )
 
-            if st.button("💾 Export Dataset", use_container_width=True):
+            if st.button("💾 Export Dataset", use_container_width=True, key="export_button"):
 
                 exported_file = export_dataset_async(
                     export_dataset_id,
@@ -308,29 +325,19 @@ def main():
                             data=f,
                             file_name=os.path.basename(exported_file),
                             mime="application/octet-stream",
+                            key="download_button"
                         )
 
         else:
             st.info("No datasets to export.")
 
-    # -------- Sidebar Status --------
+    # Sidebar status
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📈 Status")
 
-    st.sidebar.metric(
-        "Documents Loaded",
-        len(st.session_state.bot.list_documents()),
-    )
-
-    st.sidebar.metric(
-        "Datasets Created",
-        len(st.session_state.datasets),
-    )
-
-    st.sidebar.metric(
-        "Jobs",
-        len(st.session_state.jobs),
-    )
+    st.sidebar.metric("Documents Loaded", len(st.session_state.bot.list_documents()))
+    st.sidebar.metric("Datasets Created", len(st.session_state.datasets))
+    st.sidebar.metric("Jobs", len(st.session_state.jobs))
 
     st.sidebar.markdown("---")
 
